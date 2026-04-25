@@ -14,21 +14,19 @@ from langchain_functions import get_answer, get_retriever
 
 app = FastAPI()
 
-# Comma-separated list of allowed origins. Set CORS_ORIGINS in Vercel env vars
-# to your deployed frontend URL(s), e.g. "https://my-app.vercel.app".
-# Falls back to local dev origins + a wildcard so initial deploys aren't blocked.
-_default_origins = (
-    "http://localhost:3000,http://127.0.0.1:3000,"
-    "http://localhost:5173,http://127.0.0.1:5173"
-)
-_origins_env = os.getenv("CORS_ORIGINS", _default_origins)
+# Allow all origins by default. Override with the CORS_ORIGINS env var
+# (comma-separated) if you ever need to lock this down.
+# NOTE: allow_credentials must be False when allow_origins is "*" — the CORS
+# spec forbids combining them, and browsers reject the response otherwise.
+_origins_env = os.getenv("CORS_ORIGINS", "*")
 ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",") if o.strip()]
+ALLOW_CREDENTIALS = "*" not in ALLOWED_ORIGINS
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX"),
-    allow_credentials=True,
+    allow_credentials=ALLOW_CREDENTIALS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
