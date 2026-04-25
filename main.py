@@ -1,3 +1,5 @@
+import os
+import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -12,15 +14,27 @@ from langchain_functions import get_answer, get_retriever
 
 app = FastAPI()
 
+# Comma-separated list of allowed origins. Set CORS_ORIGINS in Vercel env vars
+# to your deployed frontend URL(s), e.g. "https://my-app.vercel.app".
+# Falls back to local dev origins + a wildcard so initial deploys aren't blocked.
+_default_origins = (
+    "http://localhost:3000,http://127.0.0.1:3000,"
+    "http://localhost:5173,http://127.0.0.1:5173"
+)
+_origins_env = os.getenv("CORS_ORIGINS", _default_origins)
+ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=os.getenv("CORS_ORIGIN_REGEX"),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-UPLOAD_ROOT = Path(__file__).resolve().parent / "uploads"
+# Use the OS temp dir so this works on read-only filesystems (Vercel, AWS Lambda).
+UPLOAD_ROOT = Path(tempfile.gettempdir()) / "aidocqa_uploads"
 UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
 
 # document_id -> LangChain retriever for /generate_answer
