@@ -1,0 +1,23 @@
+# Web framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.20
+python-dotenv==1.0.1
+
+# LangChain (split packages keep transitive footprint small)
+langchain-core==0.3.28
+langchain-classic==0.3.13
+langchain-community==0.3.13
+langchain-openai==0.2.14
+
+# OpenAI client + token counting
+openai==1.58.1
+tiktoken==0.8.0
+
+# Vector store: FAISS is ~30 MB vs Chroma ~400 MB
+faiss-cpu==1.9.0.post1
+numpy==1.26.4
+
+# Document loaders
+pypdf==5.1.0
+docx2txt==0.8
