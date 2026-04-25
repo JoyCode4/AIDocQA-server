@@ -67,7 +67,7 @@ def count_pdf_pages(path: Path) -> int | None:
         return None
 
 @app.get("/")
-def read_root():
+def root():
     return {"message": "Hello World"}
 
 @app.get("/chat_history")
